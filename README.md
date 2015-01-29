@@ -23,6 +23,7 @@ Notice: computation time 1327.7 ms
 
 # Requirements
 * make
+* NVIDIA CUDA Compiler
 * gcc or visual studio
 * Most likely will work on any OS (Linux, Windows, and so on)
 
