@@ -37,7 +37,7 @@
 #define CONST_CHARSET_LENGTH (sizeof(CONST_CHARSET) - 1)
 
 #define CONST_WORD_LENGTH_MIN 1
-#define CONST_WORD_LENGTH_MAX 8
+#define CONST_WORD_LENGTH_MAX 6
 
 #define TOTAL_BLOCKS 16384UL
 #define TOTAL_THREADS 512UL
@@ -167,21 +167,17 @@ int main(int argc, char* argv[]){
   cudaEventCreate(&clockLast);
   cudaEventRecord(clockBegin, 0);
   
-  for(int device = 0; device < devices; device++){
-    cudaSetDevice(device);
-    
-    /* Allocate once per device */
-    ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LIMIT, 0, cudaMemcpyHostToDevice));
-    ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCracked, g_cracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
-  }
-  
   /* Current word is different on each device */
   char** words = new char*[devices];
   
   for(int device = 0; device < devices; device++){
     cudaSetDevice(device);
     
-    /* Allocate per device */
+    /* Copy to each device */
+    ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCharset, g_charset, sizeof(uint8_t) * CONST_CHARSET_LIMIT, 0, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaMemcpyToSymbol(g_deviceCracked, g_cracked, sizeof(uint8_t) * CONST_WORD_LIMIT, 0, cudaMemcpyHostToDevice));
+    
+    /* Allocate on each device */
     ERROR_CHECK(cudaMalloc((void**)&words[device], sizeof(uint8_t) * CONST_WORD_LIMIT));
   }
   
